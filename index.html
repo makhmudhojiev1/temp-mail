@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self' https://www.guerrillamail.com https://api.guerrillamail.com https://cdnjs.cloudflare.com ws://127.0.0.1:* wss://127.0.0.1:*; connect-src 'self' https://www.guerrillamail.com https://api.guerrillamail.com ws://127.0.0.1:* wss://127.0.0.1:*; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src https://cdnjs.cloudflare.com; img-src 'self' data: https:;"
+      content="default-src 'self' https://www.guerrillamail.com https://api.guerrillamail.com https://cdnjs.cloudflare.com ws://127.0.0.1:* wss://127.0.0.1:*; connect-src 'self' https://www.guerrillamail.com https://api.guerrillamail.com ws://127.0.0.1:* wss://127.0.0.1:*; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src https://cdnjs.cloudflare.com; img-src 'self' data: https:; media-src 'self' https:;"
     />
     <title>TempMail - Disposable Email Service</title>
     <meta
@@ -548,10 +548,12 @@
         background: var(--card-bg);
         padding: 20px;
         border-radius: 10px;
-        max-width: 500px;
+        max-width: 600px;
         width: 90%;
         position: relative;
         border: 1px solid var(--border-color);
+        max-height: 80vh;
+        overflow-y: auto;
       }
 
       body.dark .modal-content {
@@ -594,6 +596,70 @@
 
       @keyframes fadeOut {
         to { opacity: 0; }
+      }
+
+      /* Attachment Preview Styles */
+      .attachment-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .attachment-section h4 {
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+        color: var(--text-light);
+      }
+
+      body.dark .attachment-section h4 {
+        color: var(--text-dark);
+      }
+
+      .attachment-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .attachment-item {
+        max-width: 200px;
+        text-align: center;
+      }
+
+      .attachment-preview img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .attachment-preview video {
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .attachment-info {
+        margin-top: 5px;
+        font-size: 0.9rem;
+        color: #6b7280;
+      }
+
+      .attachment-download {
+        display: inline-block;
+        margin-top: 5px;
+        padding: 5px 10px;
+        background: var(--primary-color);
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        transition: background 0.3s ease;
+      }
+
+      .attachment-download:hover {
+        background: #2563eb;
       }
     </style>
   </head>
@@ -793,6 +859,24 @@ TEMP MAIL
       let autoRefreshInterval = null;
       let emailSession = null; // Guerrilla Mail session data
 
+      // Simulated attachment data for testing (since Guerrilla Mail API doesn't provide attachments)
+      const sampleAttachments = [
+        {
+          id: "1",
+          attachments: [
+            { name: "image1.jpg", url: "https://picsum.photos/200/300", type: "image/jpeg" },
+            { name: "video1.mp4", url: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", type: "video/mp4" },
+            { name: "document.pdf", url: "https://sample-videos.com/pdf/Sample-pdf-file.pdf", type: "application/pdf" }
+          ]
+        },
+        {
+          id: "2",
+          attachments: [
+            { name: "image2.png", url: "https://picsum.photos/200/200", type: "image/png" }
+          ]
+        }
+      ];
+
       // Initial Setup
       document.addEventListener("DOMContentLoaded", () => {
         initializeApp();
@@ -910,13 +994,18 @@ TEMP MAIL
           const response = await fetch(`https://api.guerrillamail.com/ajax.php?f=check_email&seq=0&sid_token=${emailSession.sid_token}`);
           const data = await response.json();
           if (data.list && data.list.length > 0) {
-            allEmails = data.list.map(email => ({
-              id: email.mail_id,
-              from: email.mail_from,
-              subject: email.mail_subject,
-              date: new Date(email.mail_timestamp * 1000).toLocaleString(),
-              body: email.mail_excerpt
-            }));
+            allEmails = data.list.map(email => {
+              // Simulate attachments for testing
+              const attachmentData = sampleAttachments.find(att => att.id === email.mail_id);
+              return {
+                id: email.mail_id,
+                from: email.mail_from,
+                subject: email.mail_subject,
+                date: new Date(email.mail_timestamp * 1000).toLocaleString(),
+                body: email.mail_excerpt,
+                attachments: attachmentData ? attachmentData.attachments : []
+              };
+            });
           } else {
             allEmails = [];
           }
@@ -1019,7 +1108,7 @@ TEMP MAIL
       }
 
       function displayEmails(emails) {
-        const startIdx = (currentPage - 1)
+        const startIdx = (currentPage - 1) * emailsPerPage;
         const paginatedEmails = emails.slice(startIdx, startIdx + emailsPerPage);
         const tbody = document.querySelector("#emails tbody");
         tbody.innerHTML = paginatedEmails.length
@@ -1064,7 +1153,48 @@ TEMP MAIL
         }
       }
 
-      // New Functions
+      // Attachment Preview Function
+      function renderAttachments(attachments) {
+        if (!attachments || attachments.length === 0) return "";
+        return `
+          <div class="attachment-section">
+            <h4>Attachments</h4>
+            <div class="attachment-list">
+              ${attachments.map(att => {
+                if (att.type.startsWith("image/")) {
+                  return `
+                    <div class="attachment-item">
+                      <div class="attachment-preview">
+                        <img src="${att.url}" alt="${att.name}" />
+                      </div>
+                      <div class="attachment-info">${att.name}</div>
+                      <a href="${att.url}" download class="attachment-download">Download</a>
+                    </div>`;
+                } else if (att.type.startsWith("video/")) {
+                  return `
+                    <div class="attachment-item">
+                      <div class="attachment-preview">
+                        <video controls>
+                          <source src="${att.url}" type="${att.type}">
+                          Your browser does not support the video tag.
+                        </video>
+                      </div>
+                      <div class="attachment-info">${att.name}</div>
+                      <a href="${att.url}" download class="attachment-download">Download</a>
+                    </div>`;
+                } else {
+                  return `
+                    <div class="attachment-item">
+                      <div class="attachment-info">${att.name}</div>
+                      <a href="${att.url}" download class="attachment-download">Download</a>
+                    </div>`;
+                }
+              }).join("")}
+            </div>
+          </div>`;
+      }
+
+      // Email View with Attachments
       async function viewEmail(id) {
         const email = allEmails.find(e => e.id === id);
         if (email) {
@@ -1075,11 +1205,13 @@ TEMP MAIL
             if (data.mail_body) {
               email.body = data.mail_body;
             }
+            const attachmentHtml = renderAttachments(email.attachments);
             showModal("Email Details", `
               <p><strong>From:</strong> ${email.from}</p>
               <p><strong>Subject:</strong> ${email.subject}</p>
               <p><strong>Date:</strong> ${email.date}</p>
               <p><strong>Body:</strong> ${email.body || "No content available"}</p>
+              ${attachmentHtml}
             `);
           } catch (error) {
             console.error("Error fetching email details:", error);
