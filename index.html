@@ -9,6 +9,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
+      http-equiv="Content-Security-Policy"
       content="default-src 'self' https://api.guerrillamail.com https://cdnjs.cloudflare.com ws://127.0.0.1:* wss://127.0.0.1:*; connect-src 'self' https://api.guerrillamail.com ws://127.0.0.1:* wss://127.0.0.1:*; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src https://cdnjs.cloudflare.com; img-src 'self' data: https:;"
     />
     <title>TempMail</title>
@@ -22,44 +23,28 @@
     />
     <meta name="author" content="Mehmet Kahya" />
 
-    <!-- Open Graph Meta Etiketleri Başlangıcı -->
+    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="TempMail" />
-
     <meta property="og:type" content="website" />
     <meta name="robots" content="index, follow" />
 
-    <!-- Twitter Card Meta Etiketleri Başlangıcı -->
+    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="TempMail " />
+    <meta name="twitter:title" content="TempMail" />
     <meta
       name="twitter:description"
       content="TempMail ile geçici e-posta adresi oluşturun. Gelen kutunuzu spam ve gereksiz maillerden koruyun. Hızlı ve güvenli geçici e-posta hizmeti."
     />
  
-    <!-- Twitter Card Meta Etiketleri Sonu -->
-
-    <!-- Diğer Meta ve Bağlantılar -->
+    <!-- Favicon and Styles -->
     <link rel="stylesheet" href="css/style.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
     <link rel="icon" href="images/temp-mail-icon.png" type="image/x-icon" />
-
-    <!-- Diğer Script ve Stil Dosyaları -->
-
-    <link rel="stylesheet" href="style.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <link rel="icon" href="images/temp-mail-icon.png" type="image/x-icon" />
-    <script id="_wau776">
-      var _wau = _wau || [];
-      _wau.push(["dynamic", "0pakxqe3b2", "776", "c4302bffffff", "small"]);
-    </script>
-    <script async src="//waust.at/d.js"></script>
-    <!-- Add confetti lib -->
+    
+    <!-- Confetti library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   </head>
 
@@ -93,55 +78,16 @@
         </div>
       </header>
 
-        <script>
-          let selectedRating = 0;
-
-          // Handle star click
-          document
-            .querySelectorAll(".star-rating .fa-star")
-            .forEach(function (star) {
-              star.addEventListener("click", function () {
-                selectedRating = parseInt(this.getAttribute("data-value"));
-                highlightStars(selectedRating);
-              });
-
-              star.addEventListener("mouseover", function () {
-                const hoverValue = parseInt(this.getAttribute("data-value"));
-                highlightStars(hoverValue);
-              });
-
-              star.addEventListener("mouseout", function () {
-                highlightStars(selectedRating);
-              });
-            });
-
-          function highlightStars(rating) {
-            document
-              .querySelectorAll(".star-rating .fa-star")
-              .forEach(function (star) {
-                if (parseInt(star.getAttribute("data-value")) <= rating) {
-                  star.classList.add("checked");
-                } else {
-                  star.classList.remove("checked");
-                }
-              });
-          }
-
-          function submitPoll() {
-            if (selectedRating > 0) {
-              // You can send this data to your server or handle it as needed
-              console.log(
-                `User rated the new UI as: ${selectedRating} out of 5`
-              );
-              alert("Thank you for your feedback!");
-
-              // Optionally, hide the poll after submission
-              document.querySelector(".poll").style.display = "none";
-            } else {
-              alert("Please select a rating before submitting.");
-            }
-          }
-        </script>
+      <div class="poll">
+        <p>How do you like the new UI?</p>
+        <div class="star-rating">
+          <i class="fa-solid fa-star" data-value="1"></i>
+          <i class="fa-solid fa-star" data-value="2"></i>
+          <i class="fa-solid fa-star" data-value="3"></i>
+          <i class="fa-solid fa-star" data-value="4"></i>
+          <i class="fa-solid fa-star" data-value="5"></i>
+        </div>
+        <button onclick="submitPoll()" class="primary-button">Submit</button>
       </div>
 
       <main class="main-content">
@@ -157,6 +103,13 @@
               >
                 <i class="fa-solid fa-copy"></i>
               </button>
+              <button
+                onclick="downloadEmails()"
+                title="Download all emails"
+                class="icon-button"
+              >
+                <i class="fa-solid fa-download"></i>
+              </button>
             </div>
             <div class="button-group">
               <button onclick="refreshMail()" class="primary-button">
@@ -164,6 +117,9 @@
               </button>
               <button onclick="genEmail()" class="primary-button">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> New Address
+              </button>
+              <button onclick="clearInbox()" class="danger-button">
+                <i class="fa-solid fa-trash"></i> Clear Inbox
               </button>
             </div>
             <div class="auto-refresh">
@@ -173,9 +129,11 @@
                 <span>Auto refresh</span>
               </label>
               <select id="refresh-interval" class="select-input">
+                <option value="5">5s</option>
                 <option value="10">10s</option>
                 <option value="30">30s</option>
                 <option value="60">1m</option>
+                <option value="300">5m</option>
               </select>
             </div>
           </div>
@@ -189,16 +147,24 @@
                 type="text"
                 id="email-search"
                 placeholder="Search emails..."
+                onkeyup="searchEmails()"
               />
+              <button onclick="clearSearch()" class="icon-button">
+                <i class="fa-solid fa-times"></i>
+              </button>
+            </div>
+            <div class="email-stats">
+              <span id="email-count">0 emails</span>
+              <span id="storage-used">0MB used</span>
             </div>
           </div>
 
-          <div
-            id="loading-spinner"
-            class="spinner hidden"
-            style="display: none"
-          ></div>
+          <div id="loading-spinner" class="spinner hidden"></div>
           <div id="error-message" class="error-message hidden"></div>
+          <div id="no-emails" class="no-emails-message">
+            <i class="fa-solid fa-inbox"></i>
+            <p>Your inbox is empty. Try generating a new email address.</p>
+          </div>
 
           <div class="table-container">
             <table id="emails">
@@ -214,8 +180,33 @@
               <tbody></tbody>
             </table>
           </div>
+          
+          <div class="pagination">
+            <button onclick="previousPage()" class="icon-button" disabled id="prev-page">
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <span id="page-info">Page 1 of 1</span>
+            <button onclick="nextPage()" class="icon-button" disabled id="next-page">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
         </div>
       </main>
+      
+      <footer class="footer">
+        <div class="footer-content">
+          <div class="footer-links">
+            <a href="#" onclick="showAbout()">About</a>
+            <a href="#" onclick="showPrivacy()">Privacy</a>
+            <a href="#" onclick="showTerms()">Terms</a>
+            <a href="#" onclick="showContact()">Contact</a>
+          </div>
+          <div class="footer-info">
+            <p>© 2024 TempMail. All rights reserved.</p>
+            <p id="version-info">Version 2.1.0</p>
+          </div>
+        </div>
+      </footer>
     </div>
 
     <div id="welcomeMessage" class="welcome-message">
@@ -235,21 +226,237 @@
         <p>Thank you for using my project! ❤️</p>
       </div>
       <div class="welcome-message-actions">
-        <button onclick="hideWelcomeMessage()" class="icon-button">
+        <button onclick="hideWelcomeMessage()" class="primary-button">
           Got it!
         </button>
       </div>
     </div>
+    
+    <!-- Modal Dialog -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <h2 id="modal-title">Modal Title</h2>
+        <div id="modal-body">
+          <p>Modal content goes here.</p>
+        </div>
+      </div>
+    </div>
 
     <script>
+      // Global variables
+      let selectedRating = 0;
+      let currentPage = 1;
+      const emailsPerPage = 10;
+      let allEmails = [];
+      
+      // Show warning on first load
+      window.onload = function() {
+        if (!localStorage.getItem('warningShown')) {
+          showWarning();
+          localStorage.setItem('warningShown', 'true');
+        }
+      };
+      
       function showWarning() {
         alert(
           "⚠️ This project is purely for educational purposes. We do not allow illegal things to be done with this project and we are not responsible for any incidents that may occur. This project uses mail.gw's API for creating temporary emails. Use it legally and responsibly ⚠️"
         );
       }
-    </script>
+      
+      // Star rating functionality
+      document.querySelectorAll(".star-rating .fa-star").forEach(function (star) {
+        star.addEventListener("click", function () {
+          selectedRating = parseInt(this.getAttribute("data-value"));
+          highlightStars(selectedRating);
+        });
 
-    <script>
+        star.addEventListener("mouseover", function () {
+          const hoverValue = parseInt(this.getAttribute("data-value"));
+          highlightStars(hoverValue);
+        });
+
+        star.addEventListener("mouseout", function () {
+          highlightStars(selectedRating);
+        });
+      });
+
+      function highlightStars(rating) {
+        document.querySelectorAll(".star-rating .fa-star").forEach(function (star) {
+          if (parseInt(star.getAttribute("data-value")) <= rating) {
+            star.classList.add("checked");
+          } else {
+            star.classList.remove("checked");
+          }
+        });
+      }
+
+      function submitPoll() {
+        if (selectedRating > 0) {
+          console.log(`User rated the new UI as: ${selectedRating} out of 5`);
+          alert("Thank you for your feedback!");
+          document.querySelector(".poll").style.display = "none";
+          
+          // Send feedback to server (example)
+          fetch('https://your-api-endpoint.com/feedback', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ rating: selectedRating }),
+          });
+        } else {
+          alert("Please select a rating before submitting.");
+        }
+      }
+      
+      // Email functions
+      function searchEmails() {
+        const searchTerm = document.getElementById('email-search').value.toLowerCase();
+        const filteredEmails = allEmails.filter(email => 
+          email.from.toLowerCase().includes(searchTerm) || 
+          email.subject.toLowerCase().includes(searchTerm)
+        );
+        displayEmails(filteredEmails);
+      }
+      
+      function clearSearch() {
+        document.getElementById('email-search').value = '';
+        displayEmails(allEmails);
+      }
+      
+      function downloadEmails() {
+        if (allEmails.length === 0) {
+          alert("No emails to download");
+          return;
+        }
+        
+        const emailData = JSON.stringify(allEmails, null, 2);
+        const blob = new Blob([emailData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tempmail_emails_${new Date().toISOString()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+      
+      function clearInbox() {
+        if (confirm("Are you sure you want to clear your inbox? This cannot be undone.")) {
+          allEmails = [];
+          displayEmails(allEmails);
+          updateEmailStats();
+        }
+      }
+      
+      function updateEmailStats() {
+        document.getElementById('email-count').textContent = `${allEmails.length} emails`;
+        // Calculate approximate storage used (rough estimate)
+        const size = JSON.stringify(allEmails).length;
+        const sizeInMB = (size / (1024 * 1024)).toFixed(2);
+        document.getElementById('storage-used').textContent = `${sizeInMB}MB used`;
+      }
+      
+      // Pagination functions
+      function displayEmails(emails) {
+        const startIdx = (currentPage - 1) * emailsPerPage;
+        const endIdx = startIdx + emailsPerPage;
+        const paginatedEmails = emails.slice(startIdx, endIdx);
+        
+        // Update table with paginated emails
+        const tbody = document.querySelector('#emails tbody');
+        tbody.innerHTML = '';
+        
+        if (emails.length === 0) {
+          document.getElementById('no-emails').style.display = 'block';
+        } else {
+          document.getElementById('no-emails').style.display = 'none';
+        }
+        
+        // Update pagination controls
+        const totalPages = Math.ceil(emails.length / emailsPerPage);
+        document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
+        document.getElementById('prev-page').disabled = currentPage === 1;
+        document.getElementById('next-page').disabled = currentPage === totalPages || totalPages === 0;
+      }
+      
+      function nextPage() {
+        const totalPages = Math.ceil(allEmails.length / emailsPerPage);
+        if (currentPage < totalPages) {
+          currentPage++;
+          displayEmails(allEmails);
+        }
+      }
+      
+      function previousPage() {
+        if (currentPage > 1) {
+          currentPage--;
+          displayEmails(allEmails);
+        }
+      }
+      
+      // Modal functions
+      function showModal(title, content) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-body').innerHTML = content;
+        document.getElementById('modal').style.display = 'block';
+      }
+      
+      function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+      }
+      
+      function showAbout() {
+        const content = `
+          <h3>About TempMail</h3>
+          <p>TempMail is a free temporary email service that allows you to create disposable email addresses.</p>
+          <p>Version: 2.1.0</p>
+          <p>Created by: Mehmet Kahya</p>
+        `;
+        showModal('About', content);
+      }
+      
+      function showPrivacy() {
+        const content = `
+          <h3>Privacy Policy</h3>
+          <p>We respect your privacy. All emails are automatically deleted after a certain period.</p>
+          <p>We do not store any personal information about our users.</p>
+          <p>This service is provided for educational purposes only.</p>
+        `;
+        showModal('Privacy Policy', content);
+      }
+      
+      function showTerms() {
+        const content = `
+          <h3>Terms of Service</h3>
+          <p>By using this service, you agree to the following terms:</p>
+          <ul>
+            <li>This service is for legitimate purposes only</li>
+            <li>No illegal activities are permitted</li>
+            <li>We reserve the right to block abusive users</li>
+            <li>Service is provided "as is" without warranties</li>
+          </ul>
+        `;
+        showModal('Terms of Service', content);
+      }
+      
+      function showContact() {
+        const content = `
+          <h3>Contact Us</h3>
+          <p>If you have any questions or feedback, please contact us:</p>
+          <ul>
+            <li>Email: contact@tempmail.example</li>
+            <li>GitHub: github.com/yourusername</li>
+            <li>Twitter: @tempmail</li>
+          </ul>
+        `;
+        showModal('Contact Information', content);
+      }
+      
+      // Welcome message functions
       function hideWelcomeMessage() {
         const welcomeMessage = document.getElementById("welcomeMessage");
         welcomeMessage.style.animation = "slideOut 0.5s ease forwards";
@@ -282,7 +489,18 @@
         } else {
           document.getElementById("welcomeMessage").remove();
         }
+        
+        // Initialize email stats
+        updateEmailStats();
       });
+      
+      // Close modal when clicking outside
+      window.onclick = function(event) {
+        const modal = document.getElementById('modal');
+        if (event.target == modal) {
+          closeModal();
+        }
+      }
     </script>
 
     <script src="js/config.js" type="module"></script>
