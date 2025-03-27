@@ -1,8 +1,3 @@
-<!--------------------------------
-    Author: Mehmet Kahya
-    Created: 17 March 2024
-    Last Updated: 31 January 2025
--------------------------------->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -12,54 +7,439 @@
       http-equiv="Content-Security-Policy"
       content="default-src 'self' https://api.guerrillamail.com https://cdnjs.cloudflare.com ws://127.0.0.1:* wss://127.0.0.1:*; connect-src 'self' https://api.guerrillamail.com ws://127.0.0.1:* wss://127.0.0.1:*; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src https://cdnjs.cloudflare.com; img-src 'self' data: https:;"
     />
-    <title>TempMail</title>
+    <title>TempMail - Disposable Email Service</title>
     <meta
       name="description"
-      content="TempMail ile geçici e-posta adresi oluşturun. Gelen kutunuzu spam ve gereksiz maillerden koruyun. Hızlı ve güvenli geçici e-posta hizmeti."
+      content="Create temporary email addresses with TempMail to protect your inbox from spam and unwanted emails. Fast, secure, and easy-to-use disposable email service."
     />
     <meta
       name="keywords"
-      content="temp mail, geçici e-posta, email spam engelleme, hızlı geçici mail, güvenli e-posta"
+      content="temporary email, disposable email, temp mail, spam protection, secure email"
     />
     <meta name="author" content="Mehmet Kahya" />
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="TempMail" />
+    <meta property="og:title" content="TempMail - Disposable Email Service" />
     <meta property="og:type" content="website" />
-    <meta name="robots" content="index, follow" />
+    <meta property="og:description" content="Fast and secure temporary email service." />
+    <meta property="og:url" content="https://tempmail.example.com" />
+    <meta property="og:image" content="https://tempmail.example.com/images/og-image.png" />
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="TempMail" />
-    <meta
-      name="twitter:description"
-      content="TempMail ile geçici e-posta adresi oluşturun. Gelen kutunuzu spam ve gereksiz maillerden koruyun. Hızlı ve güvenli geçici e-posta hizmeti."
-    />
- 
-    <!-- Favicon and Styles -->
-    <link rel="stylesheet" href="css/style.css" />
+    <meta name="twitter:title" content="TempMail - Disposable Email Service" />
+    <meta name="twitter:description" content="Fast and secure temporary email service." />
+    <meta name="twitter:image" content="https://tempmail.example.com/images/twitter-image.png" />
+
+    <!-- External Libraries -->
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
     />
     <link rel="icon" href="images/temp-mail-icon.png" type="image/x-icon" />
-    
-    <!-- Confetti library -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Embedded CSS -->
+    <style>
+      :root {
+        --primary-color: #3b82f6;
+        --secondary-color: #10b981;
+        --danger-color: #ef4444;
+        --bg-light: #f9fafb;
+        --bg-dark: #1f2937;
+        --text-light: #111827;
+        --text-dark: #d1d5db;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg-light);
+        color: var(--text-light);
+        margin: 0;
+        padding: 0;
+        transition: all 0.3s ease;
+      }
+
+      body.dark {
+        background: var(--bg-dark);
+        color: var(--text-dark);
+      }
+
+      .app-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .ascii-art pre {
+        margin: 0;
+        color: #fff;
+        font-size: 1rem;
+      }
+
+      .system-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .status-led {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .status-led.online { background: var(--secondary-color); }
+      .status-led.offline { background: var(--danger-color); }
+
+      .theme-switch {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #ccc;
+        transition: 0.4s;
+        border-radius: 24px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background: var(--primary-color);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(26px);
+      }
+
+      .card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      body.dark .card {
+        background: #374151;
+      }
+
+      .email-controls, .search-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+      }
+
+      .email-input-group {
+        flex: 1;
+        position: relative;
+      }
+
+      .email-input-group input {
+        width: 100%;
+        padding: 10px 40px;
+        border: 1px solid #d1d5db;
+        border-radius: 5px;
+        font-size: 1rem;
+      }
+
+      .input-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6b7280;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+      }
+
+      .primary-button, .danger-button, .icon-button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .primary-button {
+        background: var(--primary-color);
+        color: #fff;
+      }
+
+      .primary-button:hover {
+        background: #2563eb;
+      }
+
+      .danger-button {
+        background: var(--danger-color);
+        color: #fff;
+      }
+
+      .danger-button:hover {
+        background: #dc2626;
+      }
+
+      .icon-button {
+        background: #e5e7eb;
+        padding: 8px;
+      }
+
+      .icon-button:hover {
+        background: #d1d5db;
+      }
+
+      .auto-refresh {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .select-input {
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #d1d5db;
+      }
+
+      .table-container {
+        overflow-x: auto;
+        margin-top: 20px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      th {
+        background: #f3f4f6;
+      }
+
+      body.dark th {
+        background: #4b5563;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .no-emails-message {
+        text-align: center;
+        padding: 20px;
+        color: #6b7280;
+      }
+
+      .spinner {
+        border: 4px solid #f3f4f6;
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 20px;
+        border-top: 1px solid #e5e7eb;
+      }
+
+      .footer-links a {
+        margin: 0 10px;
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      .footer-links a:hover {
+        text-decoration: underline;
+      }
+
+      .welcome-message {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        max-width: 400px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .welcome-message.show {
+        opacity: 1;
+      }
+
+      @keyframes slideOut {
+        from { transform: translate(-50%, -50%); opacity: 1; }
+        to { transform: translate(-50%, -70%); opacity: 0; }
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 90%;
+        position: relative;
+      }
+
+      body.dark .modal-content {
+        background: #374151;
+      }
+
+      .close-modal {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        cursor: pointer;
+      }
+
+      .poll {
+        text-align: center;
+        padding: 20px;
+        background: #f3f4f6;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
+
+      body.dark .poll {
+        background: #4b5563;
+      }
+
+      .star-rating .fa-star {
+        cursor: pointer;
+        color: #d1d5db;
+        font-size: 1.5rem;
+      }
+
+      .star-rating .fa-star.checked {
+        color: #facc15;
+      }
+
+      .notification {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        color: #fff;
+        animation: slideIn 0.5s ease, fadeOut 0.5s ease 2.5s forwards;
+      }
+
+      .notification.success { background: var(--secondary-color); }
+      .notification.error { background: var(--danger-color); }
+
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+
+      @keyframes fadeOut {
+        to { opacity: 0; }
+      }
+    </style>
   </head>
 
   <body>
     <div class="app-container">
+      <!-- Theme Switcher -->
       <div class="theme-switch">
         <i class="fa-solid fa-moon"></i>
         <label class="switch">
-          <input type="checkbox" id="theme-toggle" />
+          <input type="checkbox" id="theme-toggle" aria-label="Toggle dark/light theme" />
           <span class="slider round"></span>
         </label>
         <i class="fa-solid fa-sun"></i>
       </div>
 
-      <header>
+      <!-- Header -->
+      <header class="header">
         <div class="header-content">
           <div class="ascii-art">
             <pre>
@@ -78,42 +458,39 @@
         </div>
       </header>
 
-      <div class="poll">
+      <!-- Poll Section -->
+      <section class="poll">
         <p>How do you like the new UI?</p>
-        <div class="star-rating">
-          <i class="fa-solid fa-star" data-value="1"></i>
-          <i class="fa-solid fa-star" data-value="2"></i>
-          <i class="fa-solid fa-star" data-value="3"></i>
-          <i class="fa-solid fa-star" data-value="4"></i>
-          <i class="fa-solid fa-star" data-value="5"></i>
+        <div class="star-rating" role="radiogroup" aria-label="Rate the UI">
+          <i class="fa-solid fa-star" data-value="1" role="radio" aria-checked="false"></i>
+          <i class="fa-solid fa-star" data-value="2" role="radio" aria-checked="false"></i>
+          <i class="fa-solid fa-star" data-value="3" role="radio" aria-checked="false"></i>
+          <i class="fa-solid fa-star" data-value="4" role="radio" aria-checked="false"></i>
+          <i class="fa-solid fa-star" data-value="5" role="radio" aria-checked="false"></i>
         </div>
-        <button onclick="submitPoll()" class="primary-button">Submit</button>
-      </div>
+        <button onclick="submitPoll()" class="primary-button">Submit Feedback</button>
+      </section>
 
+      <!-- Main Content -->
       <main class="main-content">
-        <div class="card">
+        <div class="card email-card">
           <div class="email-controls">
             <div class="email-input-group">
               <i class="fa-solid fa-at input-icon"></i>
-              <input id="addr" placeholder="Email address" readonly />
-              <button
-                onclick="copyEmail()"
-                title="Copy email"
-                class="icon-button"
-              >
+              <input id="addr" placeholder="Your temporary email" readonly aria-label="Temporary email address" />
+              <button onclick="copyEmail()" title="Copy email" class="icon-button" aria-label="Copy email">
                 <i class="fa-solid fa-copy"></i>
               </button>
-              <button
-                onclick="downloadEmails()"
-                title="Download all emails"
-                class="icon-button"
-              >
+              <button onclick="downloadEmails()" title="Download emails" class="icon-button" aria-label="Download all emails">
                 <i class="fa-solid fa-download"></i>
+              </button>
+              <button onclick="shareEmail()" title="Share email" class="icon-button" aria-label="Share email">
+                <i class="fa-solid fa-share"></i>
               </button>
             </div>
             <div class="button-group">
               <button onclick="refreshMail()" class="primary-button">
-                <i class="fa-solid fa-rotate"></i> Load Mail
+                <i class="fa-solid fa-rotate"></i> Refresh Inbox
               </button>
               <button onclick="genEmail()" class="primary-button">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> New Address
@@ -125,10 +502,10 @@
             <div class="auto-refresh">
               <label class="checkbox-label">
                 <i class="fa-solid fa-arrows-rotate"></i>
-                <input type="checkbox" id="auto-refresh" />
-                <span>Auto refresh</span>
+                <input type="checkbox" id="auto-refresh" aria-label="Enable auto-refresh" />
+                <span>Auto Refresh</span>
               </label>
-              <select id="refresh-interval" class="select-input">
+              <select id="refresh-interval" class="select-input" aria-label="Refresh interval">
                 <option value="5">5s</option>
                 <option value="10">10s</option>
                 <option value="30">30s</option>
@@ -139,7 +516,7 @@
           </div>
         </div>
 
-        <div class="card">
+        <div class="card inbox-card">
           <div class="search-container">
             <div class="search-input-group">
               <i class="fa-solid fa-magnifying-glass"></i>
@@ -148,8 +525,9 @@
                 id="email-search"
                 placeholder="Search emails..."
                 onkeyup="searchEmails()"
+                aria-label="Search emails"
               />
-              <button onclick="clearSearch()" class="icon-button">
+              <button onclick="clearSearch()" class="icon-button" aria-label="Clear search">
                 <i class="fa-solid fa-times"></i>
               </button>
             </div>
@@ -159,83 +537,80 @@
             </div>
           </div>
 
-          <div id="loading-spinner" class="spinner hidden"></div>
-          <div id="error-message" class="error-message hidden"></div>
+          <div id="loading-spinner" class="spinner hidden" aria-hidden="true"></div>
+          <div id="error-message" class="error-message hidden" role="alert"></div>
           <div id="no-emails" class="no-emails-message">
             <i class="fa-solid fa-inbox"></i>
-            <p>Your inbox is empty. Try generating a new email address.</p>
+            <p>Your inbox is empty. Generate a new email address to start receiving messages.</p>
           </div>
 
           <div class="table-container">
-            <table id="emails">
+            <table id="emails" aria-label="Email inbox">
               <thead>
                 <tr>
-                  <th><i class="fa-solid fa-hashtag"></i> ID</th>
-                  <th><i class="fa-solid fa-user"></i> From</th>
-                  <th><i class="fa-solid fa-envelope"></i> Subject</th>
-                  <th><i class="fa-solid fa-calendar"></i> Date</th>
-                  <th><i class="fa-solid fa-gear"></i> Actions</th>
+                  <th scope="col"><i class="fa-solid fa-hashtag"></i> ID</th>
+                  <th scope="col"><i class="fa-solid fa-user"></i> From</th>
+                  <th scope="col"><i class="fa-solid fa-envelope"></i> Subject</th>
+                  <th scope="col"><i class="fa-solid fa-calendar"></i> Date</th>
+                  <th scope="col"><i class="fa-solid fa-gear"></i> Actions</th>
                 </tr>
               </thead>
               <tbody></tbody>
             </table>
           </div>
-          
+
           <div class="pagination">
-            <button onclick="previousPage()" class="icon-button" disabled id="prev-page">
+            <button onclick="previousPage()" class="icon-button" disabled id="prev-page" aria-label="Previous page">
               <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <span id="page-info">Page 1 of 1</span>
-            <button onclick="nextPage()" class="icon-button" disabled id="next-page">
+            <span id="page-info" aria-live="polite">Page 1 of 1</span>
+            <button onclick="nextPage()" class="icon-button" disabled id="next-page" aria-label="Next page">
               <i class="fa-solid fa-chevron-right"></i>
             </button>
           </div>
         </div>
       </main>
-      
+
+      <!-- Footer -->
       <footer class="footer">
         <div class="footer-content">
           <div class="footer-links">
-            <a href="#" onclick="showAbout()">About</a>
-            <a href="#" onclick="showPrivacy()">Privacy</a>
-            <a href="#" onclick="showTerms()">Terms</a>
-            <a href="#" onclick="showContact()">Contact</a>
+            <a href="#" onclick="showAbout()" aria-label="About TempMail">About</a>
+            <a href="#" onclick="showPrivacy()" aria-label="Privacy Policy">Privacy</a>
+            <a href="#" onclick="showTerms()" aria-label="Terms of Service">Terms</a>
+            <a href="#" onclick="showContact()" aria-label="Contact Us">Contact</a>
           </div>
           <div class="footer-info">
-            <p>© 2024 TempMail. All rights reserved.</p>
-            <p id="version-info">Version 2.1.0</p>
+            <p>© 2025 TempMail. All rights reserved.</p>
+            <p id="version-info">Version 2.1.1</p>
           </div>
         </div>
       </footer>
     </div>
 
-    <div id="welcomeMessage" class="welcome-message">
+    <!-- Welcome Message -->
+    <div id="welcomeMessage" class="welcome-message" role="dialog" aria-labelledby="welcome-title">
       <div class="welcome-message-header">
         <i class="fas fa-info-circle"></i>
-        <h3>Welcome to Temp Mail</h3>
+        <h3 id="welcome-title">Welcome to TempMail</h3>
       </div>
       <div class="welcome-message-content">
-        <p><strong> If you see a "failed to load" message:</strong></p>
+        <p><strong>Troubleshooting Tips:</strong></p>
         <ul>
-          <li>Try clicking the "New Address" button multiple times</li>
-          <li>
-            If the issue persists, please contact me on GitHub or LinkedIn
-          </li>
+          <li>If you see a "failed to load" error, click "New Address" multiple times.</li>
+          <li>For persistent issues, reach out via GitHub or LinkedIn.</li>
         </ul>
-        <br />
-        <p>Thank you for using my project! ❤️</p>
+        <p>Thank you for using TempMail! ❤️</p>
       </div>
       <div class="welcome-message-actions">
-        <button onclick="hideWelcomeMessage()" class="primary-button">
-          Got it!
-        </button>
+        <button onclick="hideWelcomeMessage()" class="primary-button" aria-label="Close welcome message">Got it!</button>
       </div>
     </div>
-    
+
     <!-- Modal Dialog -->
-    <div id="modal" class="modal">
+    <div id="modal" class="modal" role="dialog" aria-labelledby="modal-title">
       <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <span class="close-modal" onclick="closeModal()" aria-label="Close modal">×</span>
         <h2 id="modal-title">Modal Title</h2>
         <div id="modal-body">
           <p>Modal content goes here.</p>
@@ -243,268 +618,339 @@
       </div>
     </div>
 
+    <!-- Embedded JavaScript -->
     <script>
-      // Global variables
+      // Global Variables
       let selectedRating = 0;
       let currentPage = 1;
       const emailsPerPage = 10;
       let allEmails = [];
-      
-      // Show warning on first load
-      window.onload = function() {
-        if (!localStorage.getItem('warningShown')) {
-          showWarning();
-          localStorage.setItem('warningShown', 'true');
-        }
-      };
-      
-      function showWarning() {
-        alert(
-          "⚠️ This project is purely for educational purposes. We do not allow illegal things to be done with this project and we are not responsible for any incidents that may occur. This project uses mail.gw's API for creating temporary emails. Use it legally and responsibly ⚠️"
-        );
-      }
-      
-      // Star rating functionality
-      document.querySelectorAll(".star-rating .fa-star").forEach(function (star) {
-        star.addEventListener("click", function () {
-          selectedRating = parseInt(this.getAttribute("data-value"));
-          highlightStars(selectedRating);
-        });
+      let autoRefreshInterval = null;
 
-        star.addEventListener("mouseover", function () {
-          const hoverValue = parseInt(this.getAttribute("data-value"));
-          highlightStars(hoverValue);
-        });
-
-        star.addEventListener("mouseout", function () {
-          highlightStars(selectedRating);
-        });
+      // Initial Setup
+      document.addEventListener("DOMContentLoaded", () => {
+        initializeApp();
+        setupEventListeners();
       });
 
+      function initializeApp() {
+        if (!localStorage.getItem("warningShown")) {
+          showWarning();
+          localStorage.setItem("warningShown", "true");
+        }
+        if (!localStorage.getItem("welcomeMessageSeen")) {
+          setTimeout(() => document.getElementById("welcomeMessage").classList.add("show"), 1000);
+        } else {
+          document.getElementById("welcomeMessage").remove();
+        }
+        updateEmailStats();
+      }
+
+      function setupEventListeners() {
+        // Star Rating
+        document.querySelectorAll(".star-rating .fa-star").forEach(star => {
+          star.addEventListener("click", () => {
+            selectedRating = parseInt(star.getAttribute("data-value"));
+            highlightStars(selectedRating);
+            star.setAttribute("aria-checked", "true");
+          });
+          star.addEventListener("mouseover", () => highlightStars(parseInt(star.getAttribute("data-value"))));
+          star.addEventListener("mouseout", () => highlightStars(selectedRating));
+        });
+
+        // Auto Refresh
+        document.getElementById("auto-refresh").addEventListener("change", toggleAutoRefresh);
+        document.getElementById("refresh-interval").addEventListener("change", updateAutoRefreshInterval);
+
+        // Modal Close on Outside Click
+        window.addEventListener("click", event => {
+          const modal = document.getElementById("modal");
+          if (event.target === modal) closeModal();
+        });
+
+        // Theme Toggle
+        document.getElementById("theme-toggle").addEventListener("change", () => {
+          document.body.classList.toggle("dark");
+          localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+        });
+
+        // Load Theme Preference
+        if (localStorage.getItem("theme") === "dark") {
+          document.body.classList.add("dark");
+          document.getElementById("theme-toggle").checked = true;
+        }
+      }
+
+      // Warning
+      function showWarning() {
+        alert(
+          "⚠️ TempMail is for educational purposes only. Illegal activities are prohibited, and we are not liable for misuse. This service uses mail.gw's API. Use responsibly. ⚠️"
+        );
+      }
+
+      // Star Rating
       function highlightStars(rating) {
-        document.querySelectorAll(".star-rating .fa-star").forEach(function (star) {
-          if (parseInt(star.getAttribute("data-value")) <= rating) {
-            star.classList.add("checked");
-          } else {
-            star.classList.remove("checked");
-          }
+        document.querySelectorAll(".star-rating .fa-star").forEach(star => {
+          star.classList.toggle("checked", parseInt(star.getAttribute("data-value")) <= rating);
         });
       }
 
       function submitPoll() {
-        if (selectedRating > 0) {
-          console.log(`User rated the new UI as: ${selectedRating} out of 5`);
-          alert("Thank you for your feedback!");
-          document.querySelector(".poll").style.display = "none";
-          
-          // Send feedback to server (example)
-          fetch('https://your-api-endpoint.com/feedback', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ rating: selectedRating }),
-          });
+        if (selectedRating === 0) return alert("Please select a rating.");
+        fetch("https://your-api-endpoint.com/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rating: selectedRating, timestamp: new Date().toISOString() })
+        })
+          .then(() => {
+            alert("Thank you for your feedback!");
+            document.querySelector(".poll").style.display = "none";
+            localStorage.setItem("pollSubmitted", "true");
+          })
+          .catch(() => alert("Failed to submit feedback. Please try again."));
+      }
+
+      // Email Functions
+      function copyEmail() {
+        const email = document.getElementById("addr").value;
+        navigator.clipboard.writeText(email).then(() => {
+          showNotification("Email copied to clipboard!");
+        });
+      }
+
+      function shareEmail() {
+        const email = document.getElementById("addr").value;
+        if (navigator.share) {
+          navigator.share({
+            title: "TempMail Address",
+            text: `Use this temporary email: ${email}`,
+            url: window.location.href
+          }).catch(() => showNotification("Sharing failed.", "error"));
         } else {
-          alert("Please select a rating before submitting.");
+          copyEmail();
+          showNotification("Share not supported. Email copied instead!");
         }
       }
-      
-      // Email functions
+
       function searchEmails() {
-        const searchTerm = document.getElementById('email-search').value.toLowerCase();
-        const filteredEmails = allEmails.filter(email => 
-          email.from.toLowerCase().includes(searchTerm) || 
-          email.subject.toLowerCase().includes(searchTerm)
+        const searchTerm = document.getElementById("email-search").value.toLowerCase();
+        const filteredEmails = allEmails.filter(email =>
+          email.from.toLowerCase().includes(searchTerm) || email.subject.toLowerCase().includes(searchTerm)
         );
+        currentPage = 1; // Reset to first page on search
         displayEmails(filteredEmails);
       }
-      
+
       function clearSearch() {
-        document.getElementById('email-search').value = '';
+        document.getElementById("email-search").value = "";
         displayEmails(allEmails);
       }
-      
+
       function downloadEmails() {
-        if (allEmails.length === 0) {
-          alert("No emails to download");
-          return;
-        }
-        
+        if (!allEmails.length) return showNotification("No emails to download.", "error");
         const emailData = JSON.stringify(allEmails, null, 2);
-        const blob = new Blob([emailData], { type: 'application/json' });
+        const blob = new Blob([emailData], { type: "application/json" });
         const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = `tempmail_emails_${new Date().toISOString()}.json`;
+        a.download = `tempmail_emails_${new Date().toISOString().replace(/[:.]/g, "-")}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+        showNotification("Emails downloaded successfully!");
       }
-      
+
       function clearInbox() {
-        if (confirm("Are you sure you want to clear your inbox? This cannot be undone.")) {
-          allEmails = [];
-          displayEmails(allEmails);
-          updateEmailStats();
+        if (!confirm("Clear inbox? This action cannot be undone.")) return;
+        allEmails = [];
+        displayEmails(allEmails);
+        updateEmailStats();
+        showNotification("Inbox cleared!");
+      }
+
+      function refreshMail() {
+        // Placeholder for actual refresh logic
+        showNotification("Inbox refreshed!");
+      }
+
+      function genEmail() {
+        // Placeholder for email generation logic
+        document.getElementById("addr").value = `example${Math.floor(Math.random() * 1000)}@tempmail.com`;
+        showNotification("New email address generated!");
+      }
+
+      // Auto Refresh
+      function toggleAutoRefresh() {
+        const checkbox = document.getElementById("auto-refresh");
+        if (checkbox.checked) {
+          const interval = document.getElementById("refresh-interval").value * 1000;
+          autoRefreshInterval = setInterval(refreshMail, interval);
+          showNotification("Auto-refresh enabled!");
+        } else {
+          clearInterval(autoRefreshInterval);
+          showNotification("Auto-refresh disabled!");
         }
       }
-      
+
+      function updateAutoRefreshInterval() {
+        if (document.getElementById("auto-refresh").checked) {
+          clearInterval(autoRefreshInterval);
+          const interval = document.getElementById("refresh-interval").value * 1000;
+          autoRefreshInterval = setInterval(refreshMail, interval);
+          showNotification(`Refresh interval updated to ${interval / 1000}s`);
+        }
+      }
+
+      // Stats and Pagination
       function updateEmailStats() {
-        document.getElementById('email-count').textContent = `${allEmails.length} emails`;
-        // Calculate approximate storage used (rough estimate)
+        document.getElementById("email-count").textContent = `${allEmails.length} emails`;
         const size = JSON.stringify(allEmails).length;
         const sizeInMB = (size / (1024 * 1024)).toFixed(2);
-        document.getElementById('storage-used').textContent = `${sizeInMB}MB used`;
+        document.getElementById("storage-used").textContent = `${sizeInMB}MB used`;
       }
-      
-      // Pagination functions
+
       function displayEmails(emails) {
         const startIdx = (currentPage - 1) * emailsPerPage;
-        const endIdx = startIdx + emailsPerPage;
-        const paginatedEmails = emails.slice(startIdx, endIdx);
-        
-        // Update table with paginated emails
-        const tbody = document.querySelector('#emails tbody');
-        tbody.innerHTML = '';
-        
-        if (emails.length === 0) {
-          document.getElementById('no-emails').style.display = 'block';
-        } else {
-          document.getElementById('no-emails').style.display = 'none';
-        }
-        
-        // Update pagination controls
-        const totalPages = Math.ceil(emails.length / emailsPerPage);
-        document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`;
-        document.getElementById('prev-page').disabled = currentPage === 1;
-        document.getElementById('next-page').disabled = currentPage === totalPages || totalPages === 0;
+        const paginatedEmails = emails.slice(startIdx, startIdx + emailsPerPage);
+        const tbody = document.querySelector("#emails tbody");
+        tbody.innerHTML = paginatedEmails.length
+          ? paginatedEmails.map(email => `
+              <tr>
+                <td>${email.id || "N/A"}</td>
+                <td>${email.from || "Unknown"}</td>
+                <td>${email.subject || "No Subject"}</td>
+                <td>${email.date || "N/A"}</td>
+                <td>
+                  <button onclick="viewEmail('${email.id}')" class="icon-button" aria-label="View email">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                  <button onclick="deleteEmail('${email.id}')" class="icon-button" aria-label="Delete email">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </td>
+              </tr>`).join("")
+          : "";
+        document.getElementById("no-emails").style.display = emails.length ? "none" : "block";
+        updatePagination(emails.length);
       }
-      
+
+      function updatePagination(totalEmails) {
+        const totalPages = Math.ceil(totalEmails / emailsPerPage) || 1;
+        document.getElementById("page-info").textContent = `Page ${currentPage} of ${totalPages}`;
+        document.getElementById("prev-page").disabled = currentPage === 1;
+        document.getElementById("next-page").disabled = currentPage === totalPages;
+      }
+
       function nextPage() {
-        const totalPages = Math.ceil(allEmails.length / emailsPerPage);
-        if (currentPage < totalPages) {
+        if (currentPage < Math.ceil(allEmails.length / emailsPerPage)) {
           currentPage++;
           displayEmails(allEmails);
         }
       }
-      
+
       function previousPage() {
         if (currentPage > 1) {
           currentPage--;
           displayEmails(allEmails);
         }
       }
-      
-      // Modal functions
+
+      // New Functions
+      function viewEmail(id) {
+        const email = allEmails.find(e => e.id === id);
+        if (email) {
+          showModal("Email Details", `
+            <p><strong>From:</strong> ${email.from}</p>
+            <p><strong>Subject:</strong> ${email.subject}</p>
+            <p><strong>Date:</strong> ${email.date}</p>
+            <p><strong>Body:</strong> ${email.body || "No content available"}</p>
+          `);
+        }
+      }
+
+      function deleteEmail(id) {
+        if (!confirm("Delete this email?")) return;
+        allEmails = allEmails.filter(e => e.id !== id);
+        displayEmails(allEmails);
+        updateEmailStats();
+        showNotification("Email deleted!");
+      }
+
+      function showNotification(message, type = "success") {
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+      }
+
+      // Modal Functions
       function showModal(title, content) {
-        document.getElementById('modal-title').textContent = title;
-        document.getElementById('modal-body').innerHTML = content;
-        document.getElementById('modal').style.display = 'block';
+        document.getElementById("modal-title").textContent = title;
+        document.getElementById("modal-body").innerHTML = content;
+        document.getElementById("modal").style.display = "flex";
       }
-      
+
       function closeModal() {
-        document.getElementById('modal').style.display = 'none';
+        document.getElementById("modal").style.display = "none";
       }
-      
+
       function showAbout() {
-        const content = `
+        showModal("About TempMail", `
           <h3>About TempMail</h3>
-          <p>TempMail is a free temporary email service that allows you to create disposable email addresses.</p>
-          <p>Version: 2.1.0</p>
-          <p>Created by: Mehmet Kahya</p>
-        `;
-        showModal('About', content);
+          <p>A free disposable email service created by Mehmet Kahya.</p>
+          <p>Version: 2.1.1</p>
+          <p>Protect your inbox with ease.</p>
+        `);
       }
-      
+
       function showPrivacy() {
-        const content = `
+        showModal("Privacy Policy", `
           <h3>Privacy Policy</h3>
-          <p>We respect your privacy. All emails are automatically deleted after a certain period.</p>
-          <p>We do not store any personal information about our users.</p>
-          <p>This service is provided for educational purposes only.</p>
-        `;
-        showModal('Privacy Policy', content);
+          <p>Your privacy matters. Emails are deleted automatically after a set period.</p>
+          <p>No personal data is stored beyond session use.</p>
+        `);
       }
-      
+
       function showTerms() {
-        const content = `
+        showModal("Terms of Service", `
           <h3>Terms of Service</h3>
-          <p>By using this service, you agree to the following terms:</p>
           <ul>
-            <li>This service is for legitimate purposes only</li>
-            <li>No illegal activities are permitted</li>
-            <li>We reserve the right to block abusive users</li>
-            <li>Service is provided "as is" without warranties</li>
+            <li>Use for legitimate purposes only.</li>
+            <li>Illegal activities are strictly prohibited.</li>
+            <li>Service provided "as is" without warranties.</li>
           </ul>
-        `;
-        showModal('Terms of Service', content);
+        `);
       }
-      
+
       function showContact() {
-        const content = `
+        showModal("Contact Us", `
           <h3>Contact Us</h3>
-          <p>If you have any questions or feedback, please contact us:</p>
+          <p>Questions or feedback?</p>
           <ul>
             <li>Email: contact@tempmail.example</li>
-            <li>GitHub: github.com/yourusername</li>
-            <li>Twitter: @tempmail</li>
+            <li>GitHub: github.com/mehmetkahya</li>
+            <li>LinkedIn: linkedin.com/in/mehmetkahya</li>
           </ul>
-        `;
-        showModal('Contact Information', content);
+        `);
       }
-      
-      // Welcome message functions
+
+      // Welcome Message
       function hideWelcomeMessage() {
         const welcomeMessage = document.getElementById("welcomeMessage");
         welcomeMessage.style.animation = "slideOut 0.5s ease forwards";
-        
-        // Create confetti explosion
         confetti({
           particleCount: 150,
           spread: 180,
           origin: { y: 0.8 },
-          colors: ['#3B82F6', '#60A5FA', '#2563EB', '#10B981', '#34D399'],
-          startVelocity: 45,
-          gravity: 1.2,
-          scalar: 0.7,
-          ticks: 150
+          colors: ["#3B82F6", "#60A5FA", "#2563EB", "#10B981", "#34D399"]
         });
-
         setTimeout(() => {
           welcomeMessage.remove();
           localStorage.setItem("welcomeMessageSeen", "true");
         }, 500);
       }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        // Only show welcome message if not seen before
-        if (!localStorage.getItem("welcomeMessageSeen")) {
-          setTimeout(() => {
-            const welcomeMessage = document.getElementById("welcomeMessage");
-            welcomeMessage.classList.add("show");
-          }, 1000);
-        } else {
-          document.getElementById("welcomeMessage").remove();
-        }
-        
-        // Initialize email stats
-        updateEmailStats();
-      });
-      
-      // Close modal when clicking outside
-      window.onclick = function(event) {
-        const modal = document.getElementById('modal');
-        if (event.target == modal) {
-          closeModal();
-        }
-      }
     </script>
-
-    <script src="js/config.js" type="module"></script>
-    <script src="js/api.js" type="module"></script>
-    <script src="js/theme.js" type="module"></script>
   </body>
 </html>
